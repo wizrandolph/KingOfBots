@@ -1,4 +1,5 @@
 import { GameObject } from "./GameObject.js";
+import { Snake } from "./Snake.js";
 import { Wall } from "./Wall.js";
 
 export class GameMap extends GameObject {
@@ -10,10 +11,15 @@ export class GameMap extends GameObject {
 
         this.L = 0;
         this.rows = 13;
-        this.cols = 13;
+        this.cols = 14;
 
         this.inner_walls_count = 20;
         this.walls = [];
+
+        this.snakes = [
+            new Snake({id: 0, color: "#ff0000", r: this.rows - 2, c: 1}, this),
+            new Snake({id: 1, color: "#0000ff", r: 1, c: this.cols - 2}, this)
+        ];
     }
 
     check_connectivity(g, sx, sy, tx, ty) {
@@ -63,7 +69,7 @@ export class GameMap extends GameObject {
                 let c = parseInt(Math.random() * (this.cols - 2)) + 1; // 随机列
                 if (g[r][c]) continue;  // 如果已经是墙体，重新随机
                 if (r == this.rows - 2 && c == 1 || r == 1 && c == this.cols - 2) continue; // 如果是出生位置，重新随机
-                g[r][c] = g[c][r] = true;   // 对称地生成墙体
+                g[r][c] = g[this.rows - r - 1][this.cols - c - 1] = true;   // 对称地生成墙体
                 break;
             }
         }
@@ -85,11 +91,28 @@ export class GameMap extends GameObject {
 
     }
 
+    add_listening_events() {
+        this.ctx.canvas.focus();
+
+        const [snake0, snake1] = this.snakes;
+        this.ctx.canvas.addEventListener("keydown", e => {
+            if (e.key === "w") {snake0.set_direction(0);}
+            if (e.key === "d") {snake0.set_direction(1);}
+            if (e.key === "s") {snake0.set_direction(2);}
+            if (e.key === "a") {snake0.set_direction(3);}
+            if (e.key === "ArrowUp") {snake1.set_direction(0);}
+            if (e.key === "ArrowRight") {snake1.set_direction(1);}
+            if (e.key === "ArrowDown") {snake1.set_direction(2);}
+            if (e.key === "ArrowLeft") {snake1.set_direction(3);}
+        });
+    }
+
     start() {
-        for (let i = 0; i < 100000; ++ i) {
-            this.create_walls();
-            if (this.check_connectivity()) break;
+        for (let i = 0; i < 10000; ++ i) {
+            if (this.create_walls()) break;
         }
+
+        this.add_listening_events();
     }
 
     update_size() {
@@ -98,8 +121,50 @@ export class GameMap extends GameObject {
         this.ctx.canvas.height = this.L * this.rows;
     }
 
+    // 判断两个蛇是否都准备好下一回合
+    check_ready() {
+        for (let snake of this.snakes) {
+            if (snake.status !== "idle") return false;
+            if (snake.direction === -1) return false;
+        }
+        return true;
+    }
+
+    // 让两条蛇进入下一回合
+    next_step() {
+        for (const snake of this.snakes) {
+            snake.next_step();
+        }
+    }
+
+    // 检查某个位置是否合法
+    check_valid(cell) {
+
+        // 检查是否撞墙
+        for (const wall of this.walls) {
+            if (wall.r === cell.r && wall.c === cell.c) return false;
+        }
+
+        // 检查是否撞蛇身体
+        for (const snake of this.snakes) {
+            let k = snake.cells.length;
+            // 蛇尾不增长时
+            if (!snake.check_tail_increasing()) {
+                k -- ;
+            }
+            for (let i = 0; i < k; ++ i) {
+                if (snake.cells[i].r === cell.r && snake.cells[i].c === cell.c) return false;
+            }
+        }
+
+        return true;
+    }
+
     update() {
         this.update_size();
+        if (this.check_ready()) {
+            this.next_step();
+        }
         this.render();
     }
 
