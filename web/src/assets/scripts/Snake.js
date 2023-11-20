@@ -123,7 +123,7 @@ export class Snake extends GameObject {
         for (let i = 1; i < this.cells.length; ++ i) {
             const a = this.cells[i];
             const b = this.cells[i - 1];
-            if (Math.abs(a.x - b.y) < this.eps && Math.abs(a.y - b.y) < this.eps) continue;
+            if (Math.abs(a.x - b.x) < this.eps && Math.abs(a.y - b.y) < this.eps) continue;
             if (Math.abs(a.x - b.x) < this.eps) {
                 ctx.fillRect((a.x - 0.5 * 0.8) * L, Math.min(a.y, b.y) * L, L * 0.8, Math.abs(a.y - b.y) * L);
             } else {

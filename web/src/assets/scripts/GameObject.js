@@ -37,8 +37,8 @@ let last_timestamp;
 const step = timestamp => {
     for (let obj of GAME_OBJECTS) {
         if (!obj.has_called_start) {
-            obj.has_called_start = true;
             obj.start();
+            obj.has_called_start = true;
         } else {
             obj.time_delta = timestamp - last_timestamp;
             obj.update();
