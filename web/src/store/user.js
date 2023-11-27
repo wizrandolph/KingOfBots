@@ -1,4 +1,5 @@
 import $ from "jquery";
+
 export default {
     state: {
         id: "",
@@ -6,10 +7,13 @@ export default {
         photo: "",
         token: "",
         is_login: false,
+        is_pulling_info: false,
     },
+
     getters: {
 
     },
+
     mutations: {
         updateUser(state, user) {
             state.id = user.id;
@@ -26,6 +30,9 @@ export default {
             state.photo = "";
             state.token = "";
             state.is_login = false;
+        },
+        updatePullingInfo(state, is_pulling_info) {
+            state.is_pulling_info = is_pulling_info;
         }
     },
     actions: {
@@ -39,6 +46,7 @@ export default {
                 },
                 success(resp) {
                     if (resp.error_message === "success") {
+                        localStorage.setItem("jwt_token", resp.token);
                         context.commit("updateToken", resp.token);
                         data.success(resp);
                     } else {
@@ -48,7 +56,7 @@ export default {
                 error(resp) { 
                     data.error(resp);
                 }
-                });
+            });
         },
         getinfo(context, data) {
             $.ajax({
@@ -74,9 +82,12 @@ export default {
             });
         },
         logout(context) {
+            localStorage.removeItem("jwt_token");
             context.commit("logout");
+            context.commit("updatePullingInfo", false);
         }
     },
+
     modules: {
 
     }

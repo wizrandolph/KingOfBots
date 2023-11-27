@@ -44,7 +44,6 @@ export default {
                 store.dispatch("getinfo", {
                     success() {
                         router.push({name: "root"});
-                        console.log(store.state.user);
                     }
                 })
             },

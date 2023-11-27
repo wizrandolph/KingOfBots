@@ -17,7 +17,7 @@
             <router-link :class="route_name == 'ranklist_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'ranklist_index'}">排行榜</router-link>
         </li>
       </ul>
-      <ul class="navbar-nav" v-if="$store.state.user.is_login">
+      <ul class="navbar-nav" v-if="$store.state.user.is_login || $store.state.user.is_pulling_info">
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             {{ $store.state.user.username }}
