@@ -43,8 +43,8 @@ const routes = [
     
   },
   {
-    path: "/user/bots/",
-    name: "user_bots_index",
+    path: "/user/bot/",
+    name: "user_bot_index",
     component: UserBotsIndexView,
     meta: {
       requestAuth: true,
