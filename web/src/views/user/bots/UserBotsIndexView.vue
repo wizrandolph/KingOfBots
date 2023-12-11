@@ -35,7 +35,8 @@
                         <label for="add-bot-content" class="form-label">Bot代码</label>
                         <VAceEditor 
                           v-model:value="bot_add.content" 
-                          @init="editorInit" lang="c_cpp"
+                          @init="editorInit" 
+                          lang="java"
                           theme="textmate" style="height: 300px" 
                           :options="{
                             enableBasicAutocompletion: true, //启用基本自动完成
@@ -94,7 +95,7 @@
                                 <VAceEditor 
                                   v-model:value="bot.content" 
                                   @init="editorInit"
-                                  lang="c_cpp" 
+                                  lang="java" 
                                   theme="textmate" 
                                   style="height: 300px"
                                   :options="{

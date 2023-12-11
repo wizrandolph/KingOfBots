@@ -3,7 +3,7 @@ import { Snake } from "./Snake.js";
 import { Wall } from "./Wall.js";
 
 export class GameMap extends GameObject {
-    constructor(ctx, parent) {
+    constructor(ctx, parent, store) {
         super();
 
         this.ctx = ctx;
@@ -12,6 +12,7 @@ export class GameMap extends GameObject {
         this.L = 0;
         this.rows = 13;
         this.cols = 14;
+        this.store = store;
 
         this.inner_walls_count = 20;
         this.walls = [];
@@ -22,61 +23,8 @@ export class GameMap extends GameObject {
         ];
     }
 
-    check_connectivity(g, sx, sy, tx, ty) {
-        if (sx == tx && sy == ty) {
-            return true;
-        }
-        g[sx][sy] = true;
-
-        const dx = [0, 0, 1, -1];
-        const dy = [1, -1, 0, 0];
-
-        for (let i = 0; i < 4; ++ i) {
-            let x = sx + dx[i], y = sy + dy[i];
-            if (!g[x][y] && this.check_connectivity(g, x, y, tx, ty)) {
-                return true;
-            }
-        }
-
-        return false;
-
-    }
-
     create_walls() {
-        const g = [];   // 用来标识每个位置是否为墙体
-
-        // 初始化g，声明为全false的二维数组
-        for (let r = 0; r < this.rows; ++ r) {
-            g[r] = [];  // 声明为二维数组
-            for (let c = 0; c < this.cols; ++ c) {
-                g[r][c] = false;
-            }
-        }
-
-        // 创建四周墙体
-        for (let r = 0; r < this.rows; ++ r) {
-            g[r][0] = g[r][this.cols - 1] = true;   // 左右两边
-        }
-        for (let c = 0; c < this.cols; ++ c) {
-            g[0][c] = g[this.rows - 1][c] = true;   // 上下两边
-        }
-
-        // 创建随机墙体
-        for (let i = 0; i < this.inner_walls_count; i += 2) {
-            let j = 1000;
-            while (j --) {
-                let r = parseInt(Math.random() * (this.rows - 2)) + 1; // 随机行
-                let c = parseInt(Math.random() * (this.cols - 2)) + 1; // 随机列
-                if (g[r][c]) continue;  // 如果已经是墙体，重新随机
-                if (r == this.rows - 2 && c == 1 || r == 1 && c == this.cols - 2) continue; // 如果是出生位置，重新随机
-                g[r][c] = g[this.rows - r - 1][this.cols - c - 1] = true;   // 对称地生成墙体
-                break;
-            }
-        }
-
-        // 检查是否连通
-        const copy_g = JSON.parse(JSON.stringify(g));
-        if (!this.check_connectivity(copy_g, this.rows - 2, 1, 1, this.cols - 2)) return false; // 如果不连通，重新生成
+        const g = this.store.state.pk.gamemap;
 
         // 生成迷宫
         for (let r = 0; r < this.rows; ++ r) {
@@ -86,9 +34,6 @@ export class GameMap extends GameObject {
                 }
             }
         }
-
-        return true;
-
     }
 
     add_listening_events() {
