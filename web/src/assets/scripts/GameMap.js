@@ -39,24 +39,24 @@ export class GameMap extends GameObject {
     add_listening_events() {
         this.ctx.canvas.focus();
 
-        const [snake0, snake1] = this.snakes;
         this.ctx.canvas.addEventListener("keydown", e => {
-            if (e.key === "w") {snake0.set_direction(0);}
-            if (e.key === "d") {snake0.set_direction(1);}
-            if (e.key === "s") {snake0.set_direction(2);}
-            if (e.key === "a") {snake0.set_direction(3);}
-            if (e.key === "ArrowUp") {snake1.set_direction(0);}
-            if (e.key === "ArrowRight") {snake1.set_direction(1);}
-            if (e.key === "ArrowDown") {snake1.set_direction(2);}
-            if (e.key === "ArrowLeft") {snake1.set_direction(3);}
+            let d = -1;
+            if (e.key === "w") {d = 0;}
+            if (e.key === "d") {d = 1;}
+            if (e.key === "s") {d = 2;}
+            if (e.key === "a") {d = 3;}
+
+            if (d !== -1) {
+                this.store.state.pk.socket.send(JSON.stringify({
+                    event: "move",
+                    direction: d,
+                }));
+            }
         });
     }
 
     start() {
-        for (let i = 0; i < 10000; ++ i) {
-            if (this.create_walls()) break;
-        }
-
+        this.create_walls();
         this.add_listening_events();
     }
 
